@@ -17,8 +17,9 @@ public class Snake {
         }
 
         if (newCoords[0][0] >= window.getTotalSize() || newCoords[0][0] < 0 ||
-            newCoords[0][1] >= window.getTotalSize() || newCoords[0][1] < 0)
+            newCoords[0][1] >= window.getTotalSize() || newCoords[0][1] < 0) {
             return NextResult.STOP;
+        }
 
         for (int i = 0; i < coords.length - 1; i++)
             newCoords[i + 1] = coords[i];
