@@ -3,9 +3,13 @@ package danyarmarkin;
 public class Snake {
     private int[][] coords = {{2, 5}, {1, 5}, {0, 5}};
     private Direction direction = Direction.RIGHT;
-    private int[] food = {15, 5};
+    Apple apple;
 
     private Window window;
+
+    public Snake() {
+        apple = new Apple();
+    }
 
     public NextResult next() {
         int[][] newCoords = new int[coords.length][2];
@@ -28,7 +32,7 @@ public class Snake {
             if (newCoords[0][0] == newCoords[i][0] && newCoords[0][1] == newCoords[i][1]) return NextResult.STOP;
         }
 
-        if (newCoords[0][0] == food[0] && newCoords[0][1] == food[1]) {
+        if (newCoords[0][0] == apple.x && newCoords[0][1] == apple.y) {
             int x = newCoords[0][0];
             int y = newCoords[0][1];
 
@@ -37,7 +41,9 @@ public class Snake {
                 y = (int) (Math.random() * window.getTotalSize());
             }
 
-            food = new int[] {x, y};
+            apple.x = x;
+            apple.y = y;
+            apple.nextColor();
 
             int[] last = coords[coords.length - 1];
 
@@ -56,7 +62,7 @@ public class Snake {
     public void restart() {
         coords = new int[][] {{2, 5}, {1, 5}, {0, 5}};
         direction = Direction.RIGHT;
-        food = new int[] {15, 5};
+        apple = new Apple();
     }
 
     private boolean contains(int[][] array, int[] val) {
@@ -81,10 +87,6 @@ public class Snake {
 
     public int[][] getCoords() {
         return coords;
-    }
-
-    public int[] getFood() {
-        return food;
     }
 
 }

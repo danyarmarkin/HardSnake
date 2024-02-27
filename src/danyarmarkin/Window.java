@@ -14,11 +14,11 @@ public class Window extends JPanel {
 
     private RestartListener restartListener;
 
-    private int cellSize = 20;
+    private int cellSize = 25;
     private int totalSize = 30;
-    private int width = 750;
-    private int height = 720;
-    private int bounce = 50;
+    private int width = 1000;
+    private int height = 1000;
+    private int bounds = 50;
 
     private final int delay = 50;
     private final int inDelay = 5;
@@ -30,6 +30,8 @@ public class Window extends JPanel {
 
         scoreLabel = new ScoreLabel();
         this.add(scoreLabel);
+
+        this.setBackground(new Color(60, 63, 65));
 
         frame.add(this);
 
@@ -89,37 +91,67 @@ public class Window extends JPanel {
         timer.start();
     }
 
+    private Color getColor(int i, Color[] g) {
+        if (i >= g.length) return Color.BLACK;
+        return g[i];
+    }
+
+    private Color[] rainbow = {
+            Color.RED,
+            Color.ORANGE,
+            Color.YELLOW,
+            Color.GREEN,
+            Color.CYAN,
+            Color.BLUE,
+            Color.MAGENTA,
+    };
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        g.setColor(Color.RED);
-        g.fillOval(snake.getFood()[0] * cellSize + bounce,
-                snake.getFood()[1] * cellSize + bounce,
+        g.setColor(snake.apple.color);
+        g.fillOval(snake.apple.x * cellSize + bounds,
+                snake.apple.y * cellSize + bounds,
                 cellSize, cellSize);
 
         g.setColor(Color.LIGHT_GRAY);
-        for (int i = 0; i <= cellSize * totalSize; i+= cellSize) {
-            g.drawLine(bounce, i + bounce, cellSize * totalSize + bounce, i + bounce);
-            g.drawLine(i + bounce, bounce, i + bounce, cellSize * totalSize + bounce);
+        for (int i = 0; i <= cellSize * totalSize; i+= totalSize * cellSize) {
+            g.drawLine(bounds, i + bounds, cellSize * totalSize + bounds, i + bounds);
+            g.drawLine(i + bounds, bounds, i + bounds, cellSize * totalSize + bounds);
         }
 
+        Color[] gradient = rainbow;
+
         for (int i = 0; i < snake.getCoords().length; i++) {
-            Color color;
-            switch ((int) ((float) i / snake.getCoords().length * 7)) {
-                case 0 -> color = Color.RED;
-                case 1 -> color = Color.ORANGE;
-                case 2 -> color = Color.YELLOW;
-                case 3 -> color = Color.GREEN;
-                case 4 -> color = Color.CYAN;
-                case 5 -> color = Color.BLUE;
-                case 6 -> color = Color.MAGENTA;
-                default -> throw new IllegalStateException("Unexpected value: " + i % 7);
-            }
-            g.setColor(color);
+            int colNum = i * (gradient.length - 1) / snake.getCoords().length;
+            Color color0 = getColor(colNum, gradient);
+            Color color1 = getColor(colNum + 1, gradient);
+            int i0 = colNum * snake.getCoords().length / (gradient.length - 1);
+            int i1 = (colNum + 1) * snake.getCoords().length / (gradient.length - 1);
+
+            int rgb0 = color0.getRGB();
+            int rgb1 = color1.getRGB();
+
+            int b0 = rgb0 & 0xFF, b1 = rgb1 & 0xFF;
+            rgb0 >>= 8;
+            rgb1 >>= 8;
+            int g0 = rgb0 & 0xFF, g1 = rgb1 & 0xFF;
+            rgb0 >>= 8;
+            rgb1 >>= 8;
+            int r0 = rgb0 & 0xFF, r1 = rgb1 & 0xFF;
+
+            int blue = b0, green = g0, red = r0;
+            try {
+                blue = (b1 - b0) * (i - i0) / (i1 - i0) + b0;
+                green = (g1 - g0) * (i - i0) / (i1 - i0) + g0;
+                red = (r1 - r0) * (i - i0) / (i1 - i0) + r0;
+            } catch (Exception e) {}
+
+            g.setColor(new Color(red, green, blue, 255));
             g.fillRect(
-                    snake.getCoords()[i][0] * cellSize + bounce,
-                    snake.getCoords()[i][1] * cellSize + bounce,
+                    snake.getCoords()[i][0] * cellSize + bounds,
+                    snake.getCoords()[i][1] * cellSize + bounds,
                     cellSize,
                     cellSize
                     );
